@@ -7,26 +7,32 @@ const { usuariosGet,
         usuariosPost,
         usuariosDelete,
         usuariosPatch } = require('../Controllers/usuarios');
-const { esRoleValido, esEmailValido } = require('../Helpers/db-validators');
+const { esRoleValido, esEmailValido, existeUsuarioPorID } = require('../Helpers/db-validators');
 const { validarCampos } = require('../middlewares/validar-campos');
-
-
 
 const router = Router();
 
+router.get('/',[check("limit","El limite tiene que ser un valor numerico").isNumeric(),check("desde","El desde tiene que ser un valor numerico").isNumeric(),validarCampos],usuariosGet);
 
-router.get('/', usuariosGet);
+router.put('/:id',[
 
-router.put('/:id', usuariosPut );
+check('id','No es un id valido').isMongoId(),
+check('id').custom(existeUsuarioPorID),
+check("rol").custom(esRoleValido),
+validarCampos
+],usuariosPut);
 
 router.post('/',[
     check("correo").custom(esEmailValido),
     check("nombre","El nombre es obligatorio").not().isEmpty(),
     check("password","El password debe tener minimo 6 letras").isLength({min:6}),
     check("rol").custom(esRoleValido),validarCampos
-], usuariosPost );
+], usuariosPost);
 
-router.delete('/', usuariosDelete );
+router.delete('/:id',[
+check('id','No es un id valido').isMongoId(),
+check('id').custom(existeUsuarioPorID),
+validarCampos,],usuariosDelete );
 
 router.patch('/', usuariosPatch );
 

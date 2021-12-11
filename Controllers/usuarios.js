@@ -5,16 +5,23 @@ const { validationResult } = require('express-validator');
 //OBTENER
 const usuariosGet = async  (req = request, res = response) => {
 
-    const { q, nombre = 'No name', apikey, page = 1, limit } = req.query;
+    const { limite=5,desde=0 } = req.query;
+
+
+    const [total,usuarios]= await Promise.all([
+        Usuario.countDocuments({estado:true}),
+        Usuario.find({estado:true})
+    .skip(Number(desde))
+    .limit(Number(limite))
+
+    ]);
 
     res.json({
-        msg: 'get API - controlador',
-        q,
-        nombre,
-        apikey,
-        page, 
-        limit
+        total,
+        usuarios
     });
+
+
 }
 //CREAR
 const usuariosPost = async (req, res = response) => {
@@ -51,9 +58,18 @@ const usuariosPut = async (req, res = response) => {
 
     const { id } = req.params;
 
+    const {password,google,correo,_id,...resto}=req.body;
+    //TODO VALIDAD CONTRA BASE DE DATOS
+    if (password) {
+        //ENCRIPTANDO EL PASSWORD
+        const salt=encripta.genSaltSync();
+        resto.password=encripta.hashSync(password,salt);
+    }
+
+    const usuario=await Usuario.findByIdAndUpdate(id,resto);
+
     res.json({
-        msg: 'put API - usuariosPut',
-        id
+        usuario
     });
 }
 
@@ -64,9 +80,13 @@ const usuariosPatch = async(req, res = response) => {
 }
 //ELIMINAR
 const usuariosDelete = async (req, res = response) => {
-    res.json({
-        msg: 'delete API - usuariosDelete'
-    });
+    
+    const {id}=req.params;
+    
+    const eliminar= await Usuario.findByIdAndUpdate(id,{estado:false});
+
+
+    res.json(eliminar);
 }
 
 
