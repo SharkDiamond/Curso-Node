@@ -14,6 +14,8 @@ class Server{
         //Middlewares
         this.middlewares();
 
+        this.authPath='/api/auth';
+
         this.routes();
         
     }
@@ -33,8 +35,8 @@ class Server{
     routes(){
        
       //RUTA PARA BOLETOS
-        this.app.use("/Users",require("../routes/usuarios"))
-     
+        this.app.use("/Users",require("../routes/usuarios"));
+        this.app.use(this.authPath,require("../routes/auth"));
     } 
 
     Escuchar(){

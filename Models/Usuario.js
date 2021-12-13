@@ -50,8 +50,9 @@ const UsuarioSchema=Schema({
 
 UsuarioSchema.methods.toJSON = function() {
     //EXTRAYENDO LA VERSION Y EL PASSWORD 
-    const {__v,password, ...usuario}=this.toObject();
+    const {__v,password, _id,...usuario}=this.toObject();
     //RETORNANDO TODO LO DEMAS
+    usuario.uid=_id;
     return usuario;
 }
 module.exports=model('Usuario',UsuarioSchema);

@@ -1,6 +1,6 @@
 const { response, request } = require('express');
 const Usuario=require('../Models/Usuario');
-const encripta=require('bcrypt');
+const encripta=require('bcryptjs');
 const { validationResult } = require('express-validator');
 //OBTENER
 const usuariosGet = async  (req = request, res = response) => {
@@ -82,11 +82,12 @@ const usuariosPatch = async(req, res = response) => {
 const usuariosDelete = async (req, res = response) => {
     
     const {id}=req.params;
-    
+    const {uid}=req.uid;
+
     const eliminar= await Usuario.findByIdAndUpdate(id,{estado:false});
 
 
-    res.json(eliminar);
+    res.json({eliminar,uid});
 }
 
 
