@@ -22,12 +22,12 @@ class Server{
 
 
     middlewares(){
-
-
+       
        this.app.use(express.json());
         
        this.app.use(cors());
-       
+        //SERVIR CONTENIDO ESTATICO
+       this.app.use(express.static('public'));
    
     }
 
@@ -35,21 +35,31 @@ class Server{
     routes(){
        
       //RUTA PARA BOLETOS
-        this.app.use("/Users",require("../routes/usuarios"));
-        this.app.use(this.authPath,require("../routes/auth"));
+      this.app.use("/Users",require("../routes/usuarios"));
+
+      this.app.use(this.authPath,require("../routes/auth"));
+
+      this.app.use("/api/categorias",require("../routes/categorias"));
+
+      this.app.use('/*',(req,res)=>{
+
+        res.sendFile(path.join("/home/gabriel/Desktop/Cursos/Nodejs/Curso-Node/","public","index.html"));
+        
+   });
+
+
+
     } 
 
     Escuchar(){
-        //PUERTO DE ESCUCHA
-       this.app.listen(8080);
+       //PUERTO DE ESCUCHA
+      this.app.listen(8080);
 
     }
 
     async ConectarDB(){
 
         await dbConection();
-
-
 
     }
 
