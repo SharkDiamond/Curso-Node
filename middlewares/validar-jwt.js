@@ -16,7 +16,6 @@ const validarJWT= async (req,res,next)=>{
         
         req.usuario=User;
 
-        console.log(User);
 
         next();
 

@@ -1,6 +1,5 @@
-const Role=require("../Models/Role");
-const Usuario = require("../Models/Usuario");
 
+const {Usuario,Role,Categoria,Producto} = require("../Models");
 
  const esRoleValido =async (rol='')=>{
     //RESCATANDO EL VALOR DEVUELTO POR LA BUSQUEDA EN LA VARIABLE EXISTE ROL
@@ -20,4 +19,30 @@ const existeUsuarioPorID=async (id)=>{
     if (!await Usuario.findById(id)) throw new Error(`El id no existe ${id}`);
 }
 
-module.exports={esRoleValido,esEmailValido,existeUsuarioPorID};
+const existeCategoriaPorId=async (id)=>{
+
+    const exits=await Categoria.findById(id);
+
+    if(!exits) throw new Error("No existe una categoria con ese id"); 
+
+}
+
+const existeProducto=async(nombre)=>{
+    //BUSCANDO UN PRODUCTO CON ESE NOMBRE
+    const exits= await Producto.findOne({nombre});
+    //EN DANDO CASO QUE EXISTA
+    if (!exits) throw new Error(`El producto ${nombre} ya existe!`);
+
+}
+
+const existeProductoId=async(id)=>{
+    //BUSCANDO UN PRODUCTO CON ESE NOMBRE
+    const exits= await Producto.findById(id);
+    //EN DANDO CASO QUE EXISTA
+    if (!exits) throw new Error(`No existe un producto con ese id ${id}`);
+
+}
+
+
+
+module.exports={esRoleValido,esEmailValido,existeUsuarioPorID,existeCategoriaPorId,existeProducto,existeProductoId};

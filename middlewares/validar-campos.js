@@ -1,5 +1,5 @@
 const {validationResult}=require("express-validator");
-
+const {Categoria}=require("../Models");
 
 const validarCampos=(req,res,next)=>{
 
@@ -11,6 +11,5 @@ const validarCampos=(req,res,next)=>{
     next();
 
 }
-
 
 module.exports={validarCampos};

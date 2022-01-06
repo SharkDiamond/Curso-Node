@@ -34,20 +34,20 @@ class Server{
 
     routes(){
        
-      //RUTA PARA BOLETOS
+      //RUTA PARA USUARIOS
       this.app.use("/Users",require("../routes/usuarios"));
-
+      //RUTA PARA AUTENTICACION
       this.app.use(this.authPath,require("../routes/auth"));
-
+      //RUTA PARA LA CATEGORIAS
       this.app.use("/api/categorias",require("../routes/categorias"));
-
+      //RUTA PARA PRODUCTOS
+      this.app.use("/api/productos",require("../routes/productos"));
+      //RUTA PARA MOSTRAR LOS ARCHIVOS DEL SERVER
       this.app.use('/*',(req,res)=>{
 
         res.sendFile(path.join("/home/gabriel/Desktop/Cursos/Nodejs/Curso-Node/","public","index.html"));
         
-   });
-
-
+      });
 
     } 
 
