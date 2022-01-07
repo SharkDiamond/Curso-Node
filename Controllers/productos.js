@@ -52,6 +52,44 @@ const getProducto   =async (req,res)=>{
 
 }
 //OBTENER PRODUCTOS PAGINADOS
+const getProductos  =async (req,res)=>{
+
+    try {
+        //SACANDO LOS LIMITES DESDE LOS PARAMETROS
+        const {desde,hasta}=req.query;
+        //BUSCANDO LOS PRODUCTOS
+        const datos= await Producto.find({disponible:true}).skip(Number(desde)).limit(Number(hasta)).populate('usuario','nombre').populate('categoria','nombre');
+        
+        res.status(200).json(datos).end();
+
+    } catch (error) {
 
 
-module.exports={createProduct,deleteProduct,getProducto};
+        res.status(500).json(error.message).end();
+    }
+
+
+
+}
+const updateProducto=async (req,res)=>{
+
+    try {
+        //OBTENIENDO LOS DATOS DEL BODY
+        const {usuario,estado,...data}=req.body;
+        //CONVIRTIENDO EL NOMBRE A MAYUSCULAS SI VIENE
+        data.nombre=data.nombre.toUpperCase();
+        //DANDO LE COMO VALOR AL USUARIO EN ID
+        data.usuario=req.usuario._id;
+        const Update=await Producto.findByIdAndUpdate(req.params.id,data,{new:true});
+           
+        res.status(200).json(Update).end();
+
+    } catch (error) {
+        res.status(500).json(error.message).end();
+    }
+
+
+}
+
+
+module.exports={createProduct,deleteProduct,getProducto,getProductos,updateProducto};
