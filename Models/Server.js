@@ -42,6 +42,9 @@ class Server{
       this.app.use("/api/categorias",require("../routes/categorias"));
       //RUTA PARA PRODUCTOS
       this.app.use("/api/productos",require("../routes/productos"));
+      //RUTA PARA BUSCAR
+      this.app.use("/api/buscar",require("../routes/buscar"));
+
       //RUTA PARA MOSTRAR LOS ARCHIVOS DEL SERVER
       this.app.use('/*',(req,res)=>{
 

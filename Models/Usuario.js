@@ -35,8 +35,6 @@ const UsuarioSchema=Schema({
         type:Boolean,
         default:true
 
-
-
     },
     google:{
 

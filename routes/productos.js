@@ -12,9 +12,9 @@ router.post('/create',[validarJWT,esAdminRole,check("nombre","El nombre es neces
                                   check("categoria","La categoria no es un id de mongo").isMongoId().custom(existeCategoriaPorId),
                                   validarCampos],createProduct);
 //ELIMINAR PRODUCTO
-router.delete('/delete/:id',[validarJWT,esAdminRole,check("id").custom(existeProductoId),validarCampos],deleteProduct);
+router.delete('/delete/:id',[validarJWT,esAdminRole,check("id","No es un id de mongo valido.").isMongoId().custom(existeProductoId),validarCampos],deleteProduct);
 //ACTUALIZAR PRODUCTO
-router.put('/actualizar/:id',[validarJWT,esAdminRole,check("id").custom(existeProductoId),validarCampos],updateProducto);
+router.put('/actualizar/:id',[validarJWT,esAdminRole,check("id","No es un id de mongo valido").isMongoId().custom(existeProductoId),validarCampos],updateProducto);
 //OBTENER PRODUCTO
 router.get('/obtener/:id',[validarJWT,check("id","No es un id de mongo").custom(existeProductoId),validarCampos],getProducto);
 //OBTENER PRODUCTOS
