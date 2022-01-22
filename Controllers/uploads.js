@@ -1,40 +1,226 @@
+const { subirArchivo } = require("../Helpers");
+const {Usuario,Producto}=require('../Models');
+const cloudinary = require('cloudinary').v2
 const path=require('path');
-const {v4:uuidv4}=require('uuid');
+const fs=require('fs');
+
+cloudinary.config(process.env.CLOUDINARY_URL);
 
 
-const cargarArchivo=(req,res)=>{
+const cargarArchivo=async(req,res)=>{
+    
+  try {
 
+
+    const nombre=await  subirArchivo(req.files,['yml','md'],`Docker`);
+
+    res.json({nombre}).end();
+
+  } catch (error) {
+     
+    res.status(500).json(error).end();
+
+  }
+   
+}
+
+const actualizarImagen=async(req,res)=>{
+    
+    try {
+ 
+      const{id,coleccion}=req.params;
+
+      let modelo;
+
+      switch (coleccion) {
+
+          case 'usuarios':
+          
+           // modelo=  await validateExistValue(coleccion,id,res);
+
+
+            modelo= await Usuario.findById(id);
+
+            if (!modelo) return res.status(400).json({msg:"No existe un usuario con ese id"}).end();
+
+
+              break;
+
+           case 'productos':
+              
+                modelo= await Producto.findById(id);
+    
+                if (!modelo) return res.status(400).json({msg:"No existe un producto con ese id"}).end();
+    
+                  break;
+
+          default:
+              return res.status(500).json({msg:'Se me olvido validar esto'}).end();
+      }
+
+
+      const directionFile= coleccion=='usuarios' ? `${coleccion}/${req.usuario.correo}/imagenes/` : `${coleccion}/imagenes/`;
+
+
+      //LIMPIAR IMAGENES PREVIAS
+      if (modelo.img) {
+        
+        const pathImagen=path.join(__dirname,'../uploads',directionFile,modelo.img);
+
+        if (fs.existsSync(pathImagen)) fs.unlinkSync(pathImagen);
+
+
+      }
+
+      modelo.img=await subirArchivo(req.files,['yml','js'],directionFile);
   
-    if (!req.files || Object.keys(req.files || !req.files.archivo).length === 0) return res.status(400).json({msg:'No hay archivos que subir'});
-  
-    // The name of the input field (i.e. "archivo") is used to retrieve the uploaded file
-   const  {archivo} = req.files;
+      await modelo.save();
 
-    const nombreCortado=archivo.name.split('.');
-    //EXTENSION DEL ARCHIVO 
-    const extension=nombreCortado[nombreCortado.length-1];
-    //EXTENCIONES PERMITIDAS
-    const permitExtension=['png','yml','txt'];
-    //VALIDAR EXTENSIONES
-    if (!permitExtension.includes(extension)) return res.status(400).json({msg:`La extension ${extension} no es permitida, ${permitExtension}`}).end();
-    //GENERANDO NOMBRE UNICO
-    const nameTemp=`${archivo.name}-${uuidv4()}.${extension}`;
-
-   const uploadPath =path.join( __dirname, '../uploads/', nameTemp);
+      res.json({modelo}).end();
   
-    // MOVIENDO EL ARCHIVO
-    archivo.mv(uploadPath, function(err) {
-        //EN DADO CASO DE QUE HAYA UN ERRIR
-        if (err) return res.status(500).send({err});
+    } catch (error) {
+       
+      res.status(500).json(error).end();
   
-        res.json({msg:'File uploaded!'}).end();
+  
+    }
+     
+}
+ 
+const mostrarImage=async(req,res)=>{
+ 
+  try {
+ 
+    const{id,coleccion}=req.params;
 
-    });
+    let modelo;
+
+    switch (coleccion) {
+
+        case 'usuarios':
+        
+         // modelo=  await validateExistValue(coleccion,id,res);
+
+
+          modelo= await Usuario.findById(id);
+
+          if (!modelo) return res.status(400).json({msg:"No existe un usuario con ese id"}).end();
+
+
+            break;
+
+         case 'productos':
+            
+              modelo= await Producto.findById(id);
+  
+              if (!modelo) return res.status(400).json({msg:"No existe un producto con ese id"}).end();
+  
+                break;
+
+        default:
+            return res.status(500).json({msg:'Se me olvido validar esto'}).end();
+    }
+
+    
+    const directionFile= coleccion=='usuarios' ? `${coleccion}/${req.usuario.correo}/imagenes/` : `${coleccion}/imagenes/`;
+
+    //LIMPIAR IMAGENES PREVIAS
+    if (modelo.img) {
+      
+      const pathImagen=path.join(__dirname,'../uploads',directionFile,modelo.img);
+
+      if (fs.existsSync(pathImagen)){
+
+        return res.sendFile(pathImagen);
+
+      } 
+
+    }
+
+    const imageFailroute=path.join(__dirname,'../assets/no-image.jpg');
+    
+    res.sendFile(imageFailroute);
+ 
+
+  } catch (error) {
+     
+    res.status(500).json(error).end();
+
+
+  }
+
+}
+
+const actualizarImagenCloudDinary=async(req,res)=>{
+    
+  try {
+
+    const{id,coleccion}=req.params;
+
+    let modelo;
+
+    switch (coleccion) {
+
+        case 'usuarios':
+        
+         // modelo=  await validateExistValue(coleccion,id,res);
+
+
+          modelo= await Usuario.findById(id);
+
+          if (!modelo) return res.status(400).json({msg:"No existe un usuario con ese id"}).end();
+
+
+            break;
+
+         case 'productos':
+            
+              modelo= await Producto.findById(id);
+  
+              if (!modelo) return res.status(400).json({msg:"No existe un producto con ese id"}).end();
+  
+                break;
+
+        default:
+            return res.status(500).json({msg:'Se me olvido validar esto'}).end();
+    }
+
+    //LIMPIAR IMAGENES PREVIAS
+    if (modelo.img) {
+      
+      const nombreArr=modelo.img.split("/");
+
+      const nombre=nombreArr[nombreArr.length-1];
+
+      [public_id]=nombre.split('.');
+
+      await cloudinary.uploader.destroy(public_id);
+
+    }
+
+    const {tempFilePath}=req.files.archivo;
+
+    const {secure_url}=await cloudinary.uploader.upload(tempFilePath);
+
+   modelo.img=secure_url;
+
+   await modelo.save();
+
+    res.json({modelo}).end();
+
+  } catch (error) {
+     
+    res.status(500).json(error).end();
+
+
+  }
    
 }
 
 
 module.exports={
-
-    cargarArchivo
+    cargarArchivo,
+    actualizarImagen,
+    mostrarImage,
+    actualizarImagenCloudDinary
 }

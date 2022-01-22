@@ -1,6 +1,6 @@
 const Usuario=require('../Models/Usuario');
 const bcryptjs=require('bcryptjs');
-const generarJWT = require('../Helpers/generar-jwt.JS');
+const generarJWT = require('../Helpers/generar-jwt.js');
 const { googleVerify } = require('../Helpers/google-verify');
 
 

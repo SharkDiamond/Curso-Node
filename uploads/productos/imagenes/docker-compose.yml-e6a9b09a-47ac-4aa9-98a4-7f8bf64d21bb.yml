@@ -1,0 +1,74 @@
+version: '3.9'
+
+services:
+
+  nginx-proxy:
+    container_name: Proxy-Pass-Nginx
+    image: jwilder/nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      Osnet-Wireless-Alert-Network:
+        ipv4_address: 192.168.10.6
+  
+  Frond-End-Alert:
+    container_name: Frond-End-Alert
+    image: nginx
+    restart: always
+    expose:
+      - "80"
+    volumes:
+      - /home/gabriel/Desktop/Osnet Wireless/OsnetApiGrafana/Fron-End/alert/build:/usr/share/nginx/html:ro
+    environment:
+      - VIRTUAL_HOST=app.osnetprpruebas.com
+    networks:
+      Osnet-Wireless-Alert-Network:
+        ipv4_address: 192.168.10.2
+
+  Back-End-Alert:
+    container_name: backend
+    image: bd022d8ae232
+    restart: always
+    expose:
+      - "3004"
+    environment:
+      - VIRTUAL_HOST=backapp.osnetpr.com
+    networks:
+      Osnet-Wireless-Alert-Network:
+        ipv4_address: 192.168.10.3
+    command: tail -f /dev/null
+
+  Api-Info-Grafana:
+    container_name: Api-Info-Grafana
+    image: node
+    restart: always
+    expose:
+      - "4000"
+    environment:
+      - VIRTUAL_HOST=grafanaapp.osnetpr.com
+    networks:
+      Osnet-Wireless-Alert-Network:
+        ipv4_address: 192.168.10.4
+
+  Database-Mysql:
+    container_name: Database-Mysql
+    image: mysql
+    restart: always
+    expose:
+      - "3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=0sn2o2oit3o3o
+    networks:
+      Osnet-Wireless-Alert-Network:
+        ipv4_address: 192.168.10.5
+
+networks:
+  Osnet-Wireless-Alert-Network:
+    driver: bridge
+    ipam:
+        config:
+          - subnet: 192.168.10.0/29
+            gateway: 192.168.10.1

@@ -47,7 +47,7 @@ const buscarCategoria= async (termino='',res=response) =>{
        return res.json({results:(categoria) ? [categoria] : []});
 
     } 
-
+    
     const regex = new RegExp(termino,'i');
 
     const users=await Categoria.find({nombre:regex,estado:true})
